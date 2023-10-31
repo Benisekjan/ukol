@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: example
+      MARIADB_DATABASE: flask
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-flask
+    volumes:
+      - "./:/app:z"
+      - "/etc/localtime:/etc/localtime:ro"
+    command: gunicorn run.wsgi:application --bind 0.0.0.0:8081
+    depends_on:
+      - db
+    environment:
+      SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://root:example@db/flask'
+
+
+
